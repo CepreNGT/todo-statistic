@@ -33,7 +33,8 @@ function getComments() {
 }
 
 function processCommand(command) {
-    switch (command) {
+    const parsedCommand = command.split(' ');
+    switch (parsedCommand[0]) {
         case 'exit':
             process.exit(0);
             break;
@@ -49,6 +50,17 @@ function processCommand(command) {
                 }
             }
             break;
+        case 'user':
+            let name = parsedCommand[1].toLowerCase();
+            for (const comment of comments) {
+                if (comment.indexOf(";") !== -1) {
+                    let splitComment = comment.split(";");
+                    if (splitComment[0].slice(8, ).toLowerCase() === name) {
+                        console.log(comment);
+                    }
+                }
+            }
+
         default:
             console.log('wrong command');
             break;
