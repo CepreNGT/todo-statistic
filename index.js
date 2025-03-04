@@ -60,7 +60,28 @@ function processCommand(command) {
                     }
                 }
             }
+        case 'date':
+            const dateStr = parsedCommand[1];
+            let minDate;
+            const dateParts = dateStr.split('-').map(Number);
+            if (dateParts.length === 1) {
+                minDate = new Date(dateParts[0], 0, 1);
+            } else if (dateParts.length === 2) {
+                minDate = new Date(dateParts[0], dateParts[1] - 1, 1);
+            } else if (dateParts.length === 3) {
+                minDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+            }
 
+            for (const comment of comments) {
+                const match = comment.match(/;\s*(\d{4}-\d{2}-\d{2})\s*;/);
+                if (match) {
+                    const commentDate = new Date(match[1]);
+                    if (commentDate >= minDate) {
+                        console.log(comment);
+                    }
+                }
+            }
+            break;
         default:
             console.log('wrong command');
             break;
