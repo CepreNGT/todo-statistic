@@ -33,6 +33,32 @@ function getComments() {
     return comments;
 }
 
+function printTable(comments) {
+    const formatCell = (value, width, isTruncate = false) => {
+        if (isTruncate && value.length > width - 3) {
+            return value.slice(0, width - 3) + "...";
+        }
+        return value.padEnd(width);
+    };
+
+    for (const comment of comments) {
+        const parts = comment.split(";");
+        const user = parts[0].slice(8).trim();
+        const date = parts[1]?.trim() || "";
+        const text = parts[2]?.trim() || "";
+        const importance = text.includes("!") ? "!" : " ";
+
+        const importanceCell = formatCell(importance, 1);
+        const userCell = formatCell(user, 10, true);
+        const dateCell = formatCell(date, 10, true);
+        const textCell = formatCell(text, 50, true);
+
+        console.log(
+            `  ${importanceCell}  |  ${userCell}  |  ${dateCell}  |  ${textCell}`
+        );
+    }
+}
+
 function parseCommentsToObject() {
     const commentsObject = {};
     commentsObject[0] = [];
@@ -103,32 +129,22 @@ function processCommand(command) {
             process.exit(0);
             break;
         case 'show':
-            for (const comment of comments) {
-                console.log(comment);
-            }
+            printTable(comments);
             break;
         case 'important':
-            for (const comment of comments) {
-                if (comment.indexOf('!') !== -1) {
-                    console.log(comment);
-                }
-            }
+            printTable(comments.filter(comment => comment.includes("!")));
             break;
         case 'sort':
-            for (const comment of getSortedComments(parsedCommand[1])) {
-                console.log(comment);
-            }
+            const sortedComments = getSortedComments(parsedCommand[1]);
+            printTable(sortedComments);
             break;
         case 'user':
             let name = parsedCommand[1].toLowerCase();
-            for (const comment of comments) {
-                if (comment.indexOf(";") !== -1) {
-                    let splitComment = comment.split(";");
-                    if (splitComment[0].slice(8, ).toLowerCase() === name) {
-                        console.log(comment);
-                    }
-                }
-            }
+            printTable(
+                comments.filter(comment =>
+                    comment.split(";")[0].slice(8).toLowerCase() === name
+                )
+            );
             break;
         case 'date':
             const dateStr = parsedCommand[1];
@@ -142,15 +158,16 @@ function processCommand(command) {
                 minDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
             }
 
-            for (const comment of comments) {
-                const match = comment.match(/;\s*(\d{4}-\d{2}-\d{2})\s*;/);
-                if (match) {
-                    const commentDate = new Date(match[1]);
-                    if (commentDate >= minDate) {
-                        console.log(comment);
+            printTable(
+                comments.filter(comment => {
+                    const match = comment.match(/;\s*(\d{4}-\d{2}-\d{2})\s*;/);
+                    if (match) {
+                        const commentDate = new Date(match[1]);
+                        return commentDate >= minDate;
                     }
-                }
-            }
+                    return false;
+                })
+            );
             break;
         default:
             console.log('wrong command');
