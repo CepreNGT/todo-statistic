@@ -2,6 +2,7 @@ const {getAllFilePathsWithExtension, readFile} = require('./fileSystem');
 const {readLine} = require('./console');
 
 const files = getFiles();
+const comments = getComments();
 
 console.log('Please, write your command!');
 readLine(processCommand);
@@ -37,9 +38,15 @@ function processCommand(command) {
             process.exit(0);
             break;
         case 'show':
-            const comment = getComments();
-            for (let i = 0 ; i < comment.length; i++) {
-                console.log(comment[i]);
+            for (const comment of comments) {
+                console.log(comment);
+            }
+            break;
+        case 'important':
+            for (const comment of comments) {
+                if (comment.indexOf("!") !== -1) {
+                    console.log(comment);
+                }
             }
             break;
         default:
